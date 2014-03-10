@@ -142,8 +142,10 @@ func NewGopp(strip bool) *gopp {
 }
 
 ///////////////////
-var defines = goopt.Strings([]string{"-D"}, "GOLANG", "Define some magic.")
+var defined = goopt.Strings([]string{"-D"}, "NAME[=defn]", "Predefine NAME as a macro. Unless given, default macro value is 1.")
+var undefined = goopt.Strings([]string{"-U"}, "NAME", "Cancel any previous/builtin definition of macro NAME.")
 var stripComments = goopt.Flag([]string{"-c", "--comments"}, []string{"-C", "--no-comments"}, "", "")
+var outputFile = goopt.String([]string{"-o", "--outfile"}, "-", "Output file (default: <stdout>)")
 
 func main() {
 	goopt.Description = func() string {
@@ -165,19 +167,32 @@ func main() {
 
 	g := NewGopp(true)
 	g.StripComments = !*stripComments
-	g.DefineValue("GOPP_VER", goopt.Version)
-	for _, def := range *defines {
+	g.DefineValue("_GOPP", goopt.Version)
+	for _, def := range *defined {
 		if strings.Contains(def, "=") {
 			lnr := strings.SplitN(def, "=", 2)
 			g.DefineValue(lnr[0], lnr[1])
 		} else {
-			g.Define(def)
+			g.DefineValue(def, 1)
 		}
+	}
+	for _, udef := range *undefined {
+		g.Undefine(udef)
 	}
 
 	if err := g.Parse(file); err != nil {
 		fmt.Println(err)
 		return
 	}
-	g.Print(os.Stdout)
+
+	var out io.Writer
+	if *outputFile == "-" {
+		out = os.Stdout
+	} else {
+		out, err = os.Open(*outputFile)
+		if err != nil {
+			panic(err)
+		}
+	}
+	g.Print(out)
 }

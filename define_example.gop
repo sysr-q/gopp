@@ -12,14 +12,15 @@ import (
 	const Thoughts = "Why?!?"
 //gopp:else
 	//gopp:define OS "Linux"
-	const Thoughts = "Good choice!"
+	const Thoughts = "I think?"
 //gopp:endif
 
 func main() {
 	fmt.Printf("Greets from %s! (%s)\n", OS, Thoughts)
-	fmt.Printf("Gopp'd using build: %s\n", GOPP_VER)
-	for {
-		// Do something!
+	fmt.Printf("Gopp'd using version: %v\n", _GOPP)
+	for i := 0; i < 5; i++ {
+		// Do something, it doesn't matter what!
+		// So let's flood stdout for eternity.
 		fmt.Println("Greets from", os.Args[0])
 	}
 }
