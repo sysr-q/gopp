@@ -94,18 +94,13 @@ func (g *gopp) Parse(r io.Reader) error {
 				g.ignoring = ok
 			} else if cmd == "else" {
 				g.ignoring = !g.ignoring
-			} else if cmd == "endif" {
-				if !g.ignoring {
-					continue
-				}
+			} else if cmd == "endif"  && g.ignoring {
 				g.ignoring = false
-			} else if cmd == "define" {
-				if g.ignoring { continue }
+			} else if cmd == "define" && !g.ignoring {
 				if len(lnr) != 2 { continue }
 				lnr = strings.SplitN(lnr[1], " ", 2)
 				g.DefineValue(lnr[0], lnr[1])
-			} else if cmd == "undef" {
-				if g.ignoring { continue }
+			} else if cmd == "undef" && !g.ignoring {
 				if len(lnr) != 2 { continue }
 				g.Undefine(lnr[1])
 			}
@@ -144,7 +139,7 @@ func NewGopp(strip bool) *gopp {
 ///////////////////
 var defined = goopt.Strings([]string{"-D"}, "NAME[=defn]", "Predefine NAME as a macro. Unless given, default macro value is 1.")
 var undefined = goopt.Strings([]string{"-U"}, "NAME", "Cancel any previous/builtin definition of macro NAME.")
-var stripComments = goopt.Flag([]string{"-c", "--comments"}, []string{"-C", "--no-comments"}, "", "")
+var stripComments = goopt.Flag([]string{"-c", "--comments"}, []string{"-C", "--no-comments"}, "Don't eat comments.", "Eat any comments that are found.")
 var outputFile = goopt.String([]string{"-o", "--outfile"}, "-", "Output file (default: <stdout>)")
 
 func main() {
