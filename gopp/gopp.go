@@ -14,11 +14,10 @@ import (
 	"go/token"
 	"io"
 	"io/ioutil"
-	"os"
 	"strings"
 )
 
-const version = "0.4"
+const version = "0.4.1"
 
 // Token provides a simple struct face to the `pos, tok, lit` returned by
 // Go's go/scanner package. This is passed around by gopp internally in a chan.
@@ -157,8 +156,7 @@ func (g *Gopp) Print(w io.Writer) error {
 		return err
 	}
 
-	printer.Fprint(os.Stdout, fset, file)
-	return nil
+	return printer.Fprint(w, fset, file)
 }
 
 // Reset will redefine the bits of a gopp instance, which you can use (e.g.)
