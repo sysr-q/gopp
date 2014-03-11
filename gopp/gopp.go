@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-const version = "0.4.1"
+const Version = "0.4.2"
 
 // Token provides a simple struct face to the `pos, tok, lit` returned by
 // Go's go/scanner package. This is passed around by gopp internally in a chan.
@@ -177,6 +177,6 @@ func New(strip bool) (g *Gopp) {
 		ignoring:      false,
 		Prefix:        "//gopp:",
 	}
-	g.DefineValue("_GOPP", version)
+	g.DefineValue("_GOPP", Version)
 	return
 }
