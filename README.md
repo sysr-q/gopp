@@ -39,8 +39,9 @@ gopp
 
 This is the main library for using the preprocessor. The import path is `github.com/sysr-q/gopp/gopp`.
 
-You can view the [godocs](http://godoc.org/github.com/sysr-q/gopp/gopp) if
+You can view the [godocs](https://godoc.org/github.com/sysr-q/gopp/gopp) if
 you're interested in using it.
+[![GoDoc](https://godoc.org/github.com/sysr-q/gopp/gopp?status.png)](https://godoc.org/github.com/sysr-q/gopp/gopp)
 
 gppc
 ----
