@@ -1,4 +1,8 @@
 // gopp provides an easy to use (but somewhat illogical) preprocessor for Go.
+// It allows similar functionality to cpp, such as ifdef, ifndef, define, undef
+// and other odd combinations thereof.
+//
+// Note: There is currently no support for nested ifdef/ifndefs.
 package gopp
 
 import (
@@ -14,7 +18,7 @@ import (
 	"strings"
 )
 
-const version = "0.3"
+const version = "0.4"
 
 // Token provides a simple struct face to the `pos, tok, lit` returned by
 // Go's go/scanner package. This is passed around by gopp internally in a chan.
@@ -24,35 +28,35 @@ type Token struct {
 	String   string
 }
 
-type gopp struct {
-	defines                 map[string]interface{}
+type Gopp struct {
+	Macros                  map[string]interface{}
 	output                  chan Token
 	StripComments, ignoring bool
 	Prefix                  string
 }
 
-// DefineValue takes a key and a value, and defines them as a macro to use when
+// DefineValue takes a name and a value, and defines them as a macro to use when
 // preprocessing a Go file.
-func (g *gopp) DefineValue(key string, value interface{}) {
-	g.defines[key] = value
+func (g *Gopp) DefineValue(name string, value interface{}) {
+	g.Macros[name] = value
 }
 
-// Define takes a key, and sets it to the sane default of 1, which can then be
+// Define takes a name, and sets it to the sane default of 1, which can then be
 // used when preprocessing a Go file.
-func (g *gopp) Define(key string) {
-	g.DefineValue(key, 1)
+func (g *Gopp) Define(name string) {
+	g.DefineValue(name, 1)
 }
 
-// Undefine will remove a given macro from the macro list used when processing
+// Undefine will remove a given name from the macro list used when processing
 // Go files.
-func (g *gopp) Undefine(key string) {
-	delete(g.defines, key)
+func (g *Gopp) Undefine(name string) {
+	delete(g.Macros, name)
 }
 
 // Parse takes an io.Reader (usually from an os.Open call), and will process the
 // resulting code read from it, preprocessing and substituting in macros as
 // required.
-func (g *gopp) Parse(r io.Reader) error {
+func (g *Gopp) Parse(r io.Reader) error {
 	src, err := ioutil.ReadAll(r)
 	if err != nil {
 		return err
@@ -77,7 +81,7 @@ func (g *gopp) Parse(r io.Reader) error {
 			}
 
 			if tok.Token != token.COMMENT && !g.ignoring {
-				val, ok := g.defines[tok.String]
+				val, ok := g.Macros[tok.String]
 				if ok {
 					tok.String = val.(string)
 				}
@@ -108,14 +112,14 @@ func (g *gopp) Parse(r io.Reader) error {
 					continue
 				}
 				def := lnr[1]
-				_, ok := g.defines[def]
+				_, ok := g.Macros[def]
 				g.ignoring = !ok
 			} else if cmd == "ifndef" {
 				if len(lnr) != 2 {
 					continue
 				}
 				def := lnr[1]
-				_, ok := g.defines[def]
+				_, ok := g.Macros[def]
 				g.ignoring = ok
 			} else if cmd == "else" {
 				g.ignoring = !g.ignoring
@@ -141,7 +145,7 @@ func (g *gopp) Parse(r io.Reader) error {
 
 // Print takes the resulting new AST after a call to Parse, and will print it
 // to the given io.Writer
-func (g *gopp) Print(w io.Writer) {
+func (g *Gopp) Print(w io.Writer) error {
 	outbuf := new(bytes.Buffer)
 	for tok := range g.output {
 		fmt.Fprintf(outbuf, " %s", tok.String)
@@ -150,24 +154,26 @@ func (g *gopp) Print(w io.Writer) {
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, "<stdin>", outbuf, parser.ParseComments)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	printer.Fprint(os.Stdout, fset, file)
+	return nil
 }
 
 // Reset will redefine the bits of a gopp instance, which you can use (e.g.)
 // each time you want to parse a new file.
-func (g *gopp) Reset() {
-	g.defines = make(map[string]interface{})
+func (g *Gopp) Reset() {
+	g.Macros = make(map[string]interface{})
 	g.output = make(chan Token)
 	g.ignoring = false
 }
 
-// New creates a new gopp instance with sane defaults.
-func New(strip bool) (g *gopp) {
-	 g = &gopp{
-		defines:       make(map[string]interface{}),
+// New creates a new gopp instance with sane defaults. The macro `_GOPP` is
+// automatically set to the gopp version.
+func New(strip bool) (g *Gopp) {
+	g = &Gopp{
+		Macros:        make(map[string]interface{}),
 		output:        make(chan Token),
 		StripComments: strip,
 		ignoring:      false,
