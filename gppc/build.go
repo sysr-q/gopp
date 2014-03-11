@@ -76,7 +76,6 @@ func build() error {
 
 		// Ignore stuff we're building to avoid recursion.
 		if strings.HasPrefix(walkPath, *outputTo) {
-			fmt.Println("ffff", walkPath, *outputTo)
 			return nil
 		}
 
