@@ -40,7 +40,7 @@ gopp
 This is the main library for using the preprocessor. The import path is `github.com/sysr-q/gopp/gopp`.
 
 You can view the [godocs](https://godoc.org/github.com/sysr-q/gopp/gopp) if
-you're interested in using it.
+you're interested in using it.  
 [![GoDoc](https://godoc.org/github.com/sysr-q/gopp/gopp?status.png)](https://godoc.org/github.com/sysr-q/gopp/gopp)
 
 gppc
@@ -50,8 +50,7 @@ _gppc_ is a command line client that allows you to easily process Go code with
 gopp, in a similar vein to the unix tool, `cpp`.
 
 _NB!_ gppc is still _very_ much in development, and as such you should be weary
-of anything it spits out. It can only handle single source files currently, but
-that's going to change in the future.
+of anything it spits out.
 
 To install: `go install github.com/sysr-q/gopp/gppc`, then check `gppc` and
 `gppc build --help`.
