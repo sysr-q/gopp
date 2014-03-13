@@ -11,7 +11,7 @@ import (
 	"github.com/sysr-q/gopp/gopp"
 )
 
-func prepDir(in, out string, g *gopp.Gopp, extensions *[]string) error {
+func prepDir(in, out string, g *gopp.Gopp, extensions, ignores *[]string) error {
 	return filepath.Walk(in, func(walkPath string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Printf("%s (1): %s -- skipping\n", walkPath, err)
@@ -19,8 +19,10 @@ func prepDir(in, out string, g *gopp.Gopp, extensions *[]string) error {
 		}
 
 		// Ignore stuff we're building to avoid recursion.
-		if strings.HasPrefix(walkPath, out) {
-			return nil
+		for _, ignore := range *ignores {
+			if strings.HasPrefix(walkPath, ignore) {
+				return nil
+			}
 		}
 
 		if info.IsDir() {
@@ -108,6 +110,9 @@ func prep() error {
 	extensions := goopt.Strings([]string{"-e"},
 		".go",
 		"Add file extensions that will be processed. (default: .go)")
+	ignores := goopt.Strings([]string{"-i"},
+		"_gppc",
+		"Add directories/files to avoid when prepping.")
 	stripComments := goopt.Flag([]string{"-c", "--comments"},
 		[]string{"-C", "--no-comments"},
 		"Don't eat comments.",
@@ -124,6 +129,7 @@ func prep() error {
 	goopt.Parse(nil)
 
 	*extensions = append(*extensions, ".go")
+	*ignores = append(*ignores, *outputTo)
 
 	if len(goopt.Args) < 1 {
 		fmt.Println("Supply a directory or file to process! Here's --help:")
@@ -157,7 +163,7 @@ func prep() error {
 		if strings.Contains(prepPath, "..") {
 			fmt.Println("Warning! This may be interesting if you've got '..' in the prep path.")
 		}
-		return prepDir(prepPath, *outputTo, g, extensions)
+		return prepDir(prepPath, *outputTo, g, extensions, ignores)
 	}
 
 	// `_gppc` -> `-` (<stdout>)
