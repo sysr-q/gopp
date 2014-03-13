@@ -6,12 +6,12 @@ import (
 )
 
 const (
-	Version = "0.4"
+	Version = "1.0.0"
 	Description = "Horrifying C-like Go preprocessor."
 )
 
 var commands = map[string]func() error{
-	"build": build,
+	"prep": prep,
 	"clean": clean,
 }
 
@@ -53,6 +53,6 @@ func main() {
 		return
 	}
 	if err := f(); err != nil {
-		panic(err)
+		fmt.Println("Failed:", err)
 	}
 }
