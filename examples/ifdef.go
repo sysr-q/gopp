@@ -18,7 +18,9 @@ import (
 func main() {
 	fmt.Printf("Greets from %s! (%s)\n", OS, Thoughts)
 	// God help you if you didn't use gppc.
-	fmt.Printf("gppc'd using version: %v\n", _GPPC)
+	fmt.Printf("gppc'd using version: %v, with defines: %s\n",
+		_GPPC,
+		_GPPC_DEFINES)
 	for i := 0; i < 5; i++ {
 		// Do something, it doesn't matter what!
 		// So let's flood stdout for eternity.

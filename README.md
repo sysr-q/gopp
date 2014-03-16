@@ -34,6 +34,9 @@ e.g., `//gopp:ifdef DEBUG`
 are more work than I'd like to put in - if you want something like this, you
 should probably use Go's compiler flags/tags instead.
 
+_Note:_ Currently, `define`s are _global_ - that is, they're not scoped to the
+file currently being processed. This may change at a later date, be warned.
+
 gopp
 ----
 
@@ -50,7 +53,9 @@ _gppc_ is a command line client that allows you to easily process Go code with
 gopp, in a similar vein to the unix tool, `cpp`.
 
 _NB!_ gppc is still _very_ much in development, and as such you should be weary
-of anything it spits out.
+of anything it spits out. Values given with `-D` are added _as is_! That means
+if you pass `-D VERSION=0.1`, everywhere `VERSION` is found, the literal `0.1`
+will be subbed in (yes, a float!). This can cause hell if you're not careful.
 
 To install: `go install github.com/sysr-q/gopp/gppc`, then check `gppc` and
-`gppc build --help`.
+`gppc prep --help`.

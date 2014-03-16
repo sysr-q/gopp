@@ -130,6 +130,7 @@ func prep() error {
 
 	*extensions = append(*extensions, ".go")
 	*ignores = append(*ignores, *outputTo)
+	*defined = append([]string{fmt.Sprintf("_GPPC=%q", Version)}, *defined...)
 
 	if len(goopt.Args) < 1 {
 		fmt.Println("Supply a directory or file to process! Here's --help:")
@@ -139,7 +140,7 @@ func prep() error {
 
 	g := gopp.New(true)
 	g.StripComments = !*stripComments
-	g.DefineValue("_GPPC", fmt.Sprintf("%q", Version))
+	g.DefineValue("_GPPC_DEFINES", fmt.Sprintf("`-D %s`", strings.Join(*defined, " -D ")))
 	for _, def := range *defined {
 		if strings.Contains(def, "=") {
 			lnr := strings.SplitN(def, "=", 2)
